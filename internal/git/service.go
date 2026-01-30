@@ -3,6 +3,7 @@ package git
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -111,7 +112,7 @@ func (s *Service) GetFileContent(filePath string) (string, error) {
 	content, err := s.runGitCommand("show", fmt.Sprintf("HEAD:%s", filePath))
 	if err != nil {
 		// If not in HEAD, try to read from filesystem
-		output, err := exec.Command("cat", filePath).Output()
+		output, err := os.ReadFile(filePath)
 		if err != nil {
 			return "", fmt.Errorf("failed to read file: %w", err)
 		}
@@ -182,7 +183,7 @@ func (s *Service) getUntrackedFiles() ([]string, error) {
 // getUntrackedFileDiff creates a diff for an untracked file
 func (s *Service) getUntrackedFileDiff(filepath string, contextLines int) (*FileDiff, error) {
 	// Read file content
-	content, err := exec.Command("cat", filepath).Output()
+	content, err := os.ReadFile(filepath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read untracked file %s: %w", filepath, err)
 	}
